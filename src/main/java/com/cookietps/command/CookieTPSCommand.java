@@ -31,6 +31,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -62,6 +63,7 @@ public final class CookieTPSCommand implements CommandExecutor, TabCompleter {
             case "profile" -> handleProfile(sender, args);
             case "filter" -> handleFilter(sender, args);
             case "reload" -> handleReload(sender);
+            case "as" -> handleAs(sender, args);
             default -> {
                 sender.sendMessage(prefixed("Unknown subcommand '" + args[0] + "'. Use /cookietps status.", NamedTextColor.RED));
                 yield true;
@@ -88,6 +90,7 @@ public final class CookieTPSCommand implements CommandExecutor, TabCompleter {
                 options.add("profile");
                 options.add("filter");
                 options.add("reload");
+                options.add("as");
             }
             return filterPrefix(options, args[0]);
         }
@@ -114,6 +117,9 @@ public final class CookieTPSCommand implements CommandExecutor, TabCompleter {
                     : List.of();
                 case "filter" -> isAdmin
                     ? filterPrefix(List.of("mode", "add", "remove", "list"), args[1])
+                    : List.of();
+                case "as" -> isAdmin
+                    ? filterPrefix(Bukkit.getOnlinePlayers().stream().map(Player::getName).toList(), args[1])
                     : List.of();
                 default -> List.of();
             };
@@ -189,6 +195,12 @@ public final class CookieTPSCommand implements CommandExecutor, TabCompleter {
             if ("profile".equals(sub) && "mode".equals(second) && isAdmin) {
                 return filterPrefix(List.of("auto", "first", "third", "front", "disabled"), args[3]);
             }
+        }
+
+        if (args.length >= 3 && "as".equals(sub) && isAdmin) {
+            Player target = Bukkit.getPlayerExact(args[1]);
+            CommandSender effective = target != null ? target : sender;
+            return onTabComplete(effective, command, alias, Arrays.copyOfRange(args, 2, args.length));
         }
 
         return List.of();
@@ -921,6 +933,26 @@ public final class CookieTPSCommand implements CommandExecutor, TabCompleter {
             }
         }
         return matches;
+    }
+
+    private boolean handleAs(CommandSender sender, String[] args) {
+        if (!sender.hasPermission(ADMIN_PERMISSION)) {
+            sender.sendMessage(prefixed("You lack admin permission (" + ADMIN_PERMISSION + ").", NamedTextColor.RED));
+            return true;
+        }
+        if (args.length < 3) {
+            sender.sendMessage(prefixed("Usage: /cookietps as <player> <subcommand...>", NamedTextColor.YELLOW));
+            return true;
+        }
+        Player target = Bukkit.getPlayerExact(args[1]);
+        if (target == null) {
+            target = Bukkit.getPlayer(args[1]);
+        }
+        if (target == null || !target.isOnline()) {
+            sender.sendMessage(prefixed("Player '" + args[1] + "' is not online.", NamedTextColor.RED));
+            return true;
+        }
+        return onCommand(target, null, "cookietps", Arrays.copyOfRange(args, 2, args.length));
     }
 
     private static Player resolvePlayer(CommandSender sender) {
