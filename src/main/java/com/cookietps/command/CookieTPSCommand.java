@@ -24,6 +24,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ProxiedCommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -223,7 +224,8 @@ public final class CookieTPSCommand implements CommandExecutor, TabCompleter {
                 .append(Component.text(String.join(", ", allowed), NamedTextColor.WHITE))
         );
 
-        if (sender instanceof Player player) {
+        Player player = resolvePlayer(sender);
+        if (player != null) {
             PlayerPreferences prefs = plugin.getPreferencesStore().load(player.getUniqueId());
             SpatialSession session = plugin.getInputHandler() != null
                 ? plugin.getInputHandler().getSession(player.getUniqueId())
@@ -277,7 +279,8 @@ public final class CookieTPSCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean handleToggle(CommandSender sender) {
-        if (!(sender instanceof Player player)) {
+        Player player = resolvePlayer(sender);
+        if (player == null) {
             sender.sendMessage(prefixed("Only players can toggle personal Spatial GUI preferences.", NamedTextColor.RED));
             return true;
         }
@@ -306,7 +309,8 @@ public final class CookieTPSCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean handleMode(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player player)) {
+        Player player = resolvePlayer(sender);
+        if (player == null) {
             sender.sendMessage(prefixed("Only players can set their personal view mode.", NamedTextColor.RED));
             return true;
         }
@@ -336,7 +340,8 @@ public final class CookieTPSCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean handleOpen(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player player)) {
+        Player player = resolvePlayer(sender);
+        if (player == null) {
             sender.sendMessage(prefixed("Only players can open a 3D Spatial screen.", NamedTextColor.RED));
             return true;
         }
@@ -406,7 +411,8 @@ public final class CookieTPSCommand implements CommandExecutor, TabCompleter {
     }
 
     private boolean handleClose(CommandSender sender) {
-        if (!(sender instanceof Player player)) {
+        Player player = resolvePlayer(sender);
+        if (player == null) {
             sender.sendMessage(prefixed("Only players can close an active Spatial screen.", NamedTextColor.RED));
             return true;
         }
@@ -436,7 +442,8 @@ public final class CookieTPSCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(prefixed("You lack permission (" + ADMIN_PERMISSION + ").", NamedTextColor.RED));
             return true;
         }
-        if (!(sender instanceof Player admin)) {
+        Player admin = resolvePlayer(sender);
+        if (admin == null) {
             sender.sendMessage(prefixed("The Visual Editor must be used in-game by a player.", NamedTextColor.RED));
             return true;
         }
@@ -914,6 +921,16 @@ public final class CookieTPSCommand implements CommandExecutor, TabCompleter {
             }
         }
         return matches;
+    }
+
+    private static Player resolvePlayer(CommandSender sender) {
+        if (sender instanceof Player player) {
+            return player;
+        }
+        if (sender instanceof ProxiedCommandSender proxied && proxied.getCallee() instanceof Player callee) {
+            return callee;
+        }
+        return null;
     }
 
     private static String formatNumber(double value) {

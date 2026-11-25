@@ -132,6 +132,12 @@ public final class SpatialInputListener implements InputHandler, Listener {
             if (!entered) {
                 session.setActiveMode(ViewMode.FIRST_PERSON);
                 session.setAnchorOrigin(eyeOrigin.clone());
+                if (!editorPreview) {
+                    player.sendActionBar(Component.text(
+                        "Third-Person blocked nearby; using First-Person.",
+                        NamedTextColor.YELLOW
+                    ));
+                }
             }
         }
 

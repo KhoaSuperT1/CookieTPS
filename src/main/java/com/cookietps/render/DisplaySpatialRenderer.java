@@ -1294,7 +1294,7 @@ public final class DisplaySpatialRenderer implements SpatialRenderer {
     }
 
     private static Quaternionf textOrientation(Quaternionf panelOrientation) {
-        return new Quaternionf(panelOrientation).rotateY((float) Math.PI);
+        return new Quaternionf(panelOrientation);
     }
 
     private static void applyCenteredQuadTransform(
