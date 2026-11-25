@@ -1,0 +1,24 @@
+name: CookieTPS
+version: 1.0
+main: com.cookietps.CookieTPSPlugin
+api-version: '1.21'
+author: CookieTPS
+description: Pure server-side 3D Spatial GUI and Third-Person Screen plugin
+
+commands:
+  cookietps:
+    description: Manage CookieTPS spatial GUI preferences, profiles, and visual editor
+    aliases:
+      - ctps
+      - spatialgui
+      - spatial
+    permission: cookietps.use
+    usage: /cookietps <toggle|mode|open|close|profile|editor|reload>
+
+permissions:
+  cookietps.use:
+    description: Allow using CookieTPS 3D spatial GUI and player preferences
+    default: true
+  cookietps.admin:
+    description: Allow using the CookieTPS Visual Editor, filter management, and reload command
+    default: op

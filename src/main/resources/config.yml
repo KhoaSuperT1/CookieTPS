@@ -1,0 +1,16 @@
+enabled: true
+default-view-mode: AUTO
+
+screen-filter:
+  mode: BLACKLIST
+  screens: []
+
+interaction:
+  max-distance: 5.5
+  auto-close-move-distance: 4.0
+  return-cursor-on-close: true
+  sound-feedback: true
+
+hotkeys:
+  sneak-swap-opens-inventory: true
+  join-hint: true
